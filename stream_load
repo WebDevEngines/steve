@@ -1,0 +1,7 @@
+#!/bin/bash
+
+i=0;
+while [ $i -lt 1000 ] ;do
+    curl -N --http2 "http://45.77.191.24:8093/stream" &
+    i=`expr $i + 1`;
+done
