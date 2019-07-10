@@ -17,11 +17,11 @@ start(_Type, _Args) ->
     ]),
 
     {ok, _} = cowboy:start_clear(
-      sse_handler,
+      http,
       [
         {port, 8093}
       ],
-      #{env => #{dispatch => Dispatch}}
+      #{env => #{dispatch => Dispatch}, idle_timeout => 600000}
     ),
     steve_sup:start_link().
 
