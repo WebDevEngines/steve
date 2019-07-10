@@ -9,10 +9,12 @@ start(_Type, _Args) ->
     % streaming handler report to
     pg2:create(stream_processes),
 
+    QueuePid = steve_queue:new(),
+
     Dispatch = cowboy_router:compile([
         {'_', [
             {"/stream", steve_stream_handler, []},
-            {"/broadcast", steve_broadcast_handler, []}
+            {"/broadcast", steve_broadcast_handler, [QueuePid]}
         ]}
     ]),
 
