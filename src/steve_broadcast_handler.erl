@@ -3,18 +3,18 @@
 -export([init/2, handle/2, terminate/3]).
 
 init(Req, State) ->
-  [QueuePid] = State,
-	Resp = handle(Req, QueuePid),
-	{ok, Resp, State}.
+  [BroadcastRouter] = State,
+  Resp = handle(Req, BroadcastRouter),
+  {ok, Resp, State}.
 
-% Broadcast the passed message to all the open streams
-handle(Req, QueuePid) ->
+% Broadcast the passed message to all the streams
+handle(Req, BroadcastRouter) ->
+
   % Get the message from the query string
-  #{msg := Msg} = cowboy_req:match_qs([msg], Req),
+  #{stream_id := StreamId, msg := Msg} = cowboy_req:match_qs([stream_id, msg], Req),
 
-  % Send a message to the queue process which will send 
-  % to the connected streams
-  QueuePid ! {send, Msg},
+  % Broadcast message to the proper connected streams
+  BroadcastRouter ! {broadcast, StreamId, Msg},
   
   % Close the HTTP connection
   cowboy_req:reply(
