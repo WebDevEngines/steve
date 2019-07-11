@@ -4,7 +4,7 @@
 -export([start/2, stop/1]).
 
 start(_Type, _Args) ->
-  BroadcastRouter = steve_broadcast_router:new(),
+  BroadcastRouter = steve_broadcast_router:start(),
 
   Dispatch = cowboy_router:compile([
     {'_', [

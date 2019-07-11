@@ -1,8 +1,8 @@
 -module(steve_broadcast_router).
 
--export([new/0]).
+-export([start/0]).
 
-new() ->
+start() ->
   M = maps:new(),
   spawn(fun() -> loop(M) end).
 
