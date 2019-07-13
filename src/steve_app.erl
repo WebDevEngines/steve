@@ -17,7 +17,8 @@ start(_Type, _Args) ->
   {ok, _} = cowboy:start_clear(
     http,
     [
-      {port, 8093}
+      {port, 8093},
+      {max_connections, infinity}
     ],
     #{env => #{dispatch => Dispatch}, idle_timeout => 600000}
   ),
