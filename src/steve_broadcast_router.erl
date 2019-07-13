@@ -4,17 +4,21 @@
 
 start() ->
   M = maps:new(),
-  spawn(fun() -> loop(M) end).
+  N = 0,
+  spawn(fun() -> loop(M, N) end).
 
-loop(M) ->
+loop(M, N) ->
   receive
     {register, StreamId, StreamPid} ->
       StreamPids = maps:get(StreamId, M, []),
-      loop(maps:put(StreamId, StreamPids ++ [StreamPid], M)); 
+      loop(maps:put(StreamId, StreamPids ++ [StreamPid], M), N +1); 
     {broadcast, StreamId, Msg} ->
       StreamPids = maps:get(StreamId, M, []),
       send_messages(StreamPids, Msg),
-      loop(M)
+      loop(M, N);
+    {num_connections, Pid} ->
+      Pid ! {num_connections, N},
+      loop(M, N)
   end.
 
 send_messages([H|T], Msg) ->

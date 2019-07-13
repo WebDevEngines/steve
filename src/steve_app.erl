@@ -9,7 +9,8 @@ start(_Type, _Args) ->
   Dispatch = cowboy_router:compile([
     {'_', [
       {"/stream", steve_stream_handler, [BroadcastRouter]},
-      {"/broadcast", steve_broadcast_handler, [BroadcastRouter]}
+      {"/broadcast", steve_broadcast_handler, [BroadcastRouter]},
+      {"/num_connections", steve_num_connections_handler, [BroadcastRouter]}
     ]}
   ]),
 
