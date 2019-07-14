@@ -18,8 +18,6 @@ broadcast_loop(N) ->
       StreamPids = ets:match_object(streams, {'_', StreamId}),
       send_messages(StreamPids, Msg),
       broadcast_loop(N);
-    {cleanup_connections} ->
-      StreamPids = e
     {num_connections, Pid} ->
       Pid ! {num_connections, N},
       broadcast_loop(N)
