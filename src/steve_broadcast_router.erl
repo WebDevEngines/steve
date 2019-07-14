@@ -3,26 +3,36 @@
 -export([start/0]).
 
 start() ->
-  M = maps:new(),
-  N = 0,
-  spawn(fun() -> loop(M, N) end).
+  ets:new(streams, [named_table, set, public]),
+  spawn(fun() -> broadcast_loop(0) end).
 
-loop(M, N) ->
+broadcast_loop(N) ->
   receive
     {register, StreamId, StreamPid} ->
-      StreamPids = maps:get(StreamId, M, []),
-      loop(maps:put(StreamId, StreamPids ++ [StreamPid], M), N +1); 
+      ets:insert(streams, {StreamPid, StreamId}),
+      broadcast_loop(N+1); 
+    {unregister, StreamPid} ->
+      ets:delete(streams, StreamPid),
+      broadcast_loop(N-1);
     {broadcast, StreamId, Msg} ->
-      StreamPids = maps:get(StreamId, M, []),
+      StreamPids = ets:match_object(streams, {'_', StreamId}),
       send_messages(StreamPids, Msg),
-      loop(M, N);
+      broadcast_loop(N);
+    {cleanup_connections} ->
+      StreamPids = e
     {num_connections, Pid} ->
       Pid ! {num_connections, N},
-      loop(M, N)
+      broadcast_loop(N)
   end.
 
 send_messages([H|T], Msg) ->
-  H ! {event, ["msg: ", Msg, "\n\n"]},
+  {StreamPid, _} = H,
+  case is_process_alive(StreamPid) of
+    true ->
+      StreamPid ! {event, ["msg: ", Msg, "\n\n"]};
+    false ->
+      self() ! {unregister, StreamPid}
+  end,
   send_messages(T, Msg);
 
 send_messages([], _) ->
