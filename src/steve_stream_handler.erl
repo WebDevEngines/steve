@@ -21,3 +21,7 @@ info(_Msg, Req, State) ->
 
 terminate(_Reason, _Req, _State) ->
   ok.
+
+% Include a timeout and make sure to un-register on timeout
+%
+%
