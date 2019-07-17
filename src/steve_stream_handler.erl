@@ -13,7 +13,6 @@ info(eof, Req, State) ->
   {stop, Req, State};
 
 info({event, Data}, Req, State) ->
-  io:format("Sending"),
   cowboy_req:stream_body(Data, nofin, Req),
   {ok, Req, State};
 
