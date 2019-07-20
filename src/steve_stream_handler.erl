@@ -3,9 +3,8 @@
 -export([init/2, info/3, terminate/3]).
 
 init(Req, State) ->
-  [BroadcastRouter] = State,
   #{stream_id := StreamId} = cowboy_req:match_qs([stream_id], Req),
-  BroadcastRouter ! {register, StreamId, self()},
+  ets:insert(streams, {self(), StreamId}),
   Resp = cowboy_req:stream_reply(200, Req),
   {cowboy_loop, Resp, State}.
 

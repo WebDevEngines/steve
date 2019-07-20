@@ -3,22 +3,14 @@
 -export([start/0]).
 
 start() ->
-  ets:new(streams, [named_table, set, public]),
-  spawn(fun() -> broadcast_loop(0) end).
+  spawn(fun() -> broadcast_loop() end).
 
-broadcast_loop(N) ->
+broadcast_loop() ->
   receive
-    {register, StreamId, StreamPid} ->
-      ets:insert(streams, {StreamPid, StreamId}),
-      broadcast_loop(N+1); 
     {broadcast, StreamId, Msg} ->
       StreamPids = ets:match_object(streams, {'_', StreamId}),
       send_messages(StreamPids, Msg),
-      NewN = ets:info(streams, size),
-      broadcast_loop(NewN);
-    {num_connections, Pid} ->
-      Pid ! {num_connections, N},
-      broadcast_loop(N)
+      broadcast_loop()
   end.
 
 send_messages([H|T], Msg) ->

@@ -4,6 +4,8 @@
 -export([start/2, stop/1]).
 
 start(_Type, _Args) ->
+  ets:new(streams, [named_table, set, public]),
+  
   BroadcastRouter = steve_broadcast_router:start(),
 
   Dispatch = cowboy_router:compile([
