@@ -1,10 +1,10 @@
--module(steve_stream_handler).
+-module(steve_events_handler).
 
 -export([init/2, info/3, terminate/3]).
 
 init(Req, State) ->
-  #{stream_id := StreamId} = cowboy_req:match_qs([stream_id], Req),
-  ets:insert(streams, {self(), StreamId}),
+  #{event := Event} = cowboy_req:match_qs([event], Req),
+  ets:insert(event_streams, {self(), Event}),
   Resp = cowboy_req:stream_reply(200, Req),
   {cowboy_loop, Resp, State}.
 

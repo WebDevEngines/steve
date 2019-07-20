@@ -1,4 +1,4 @@
--module(steve_num_connections_handler).
+-module(steve_stats_handler).
 
 -export([init/2, handle/1, terminate/3]).
 
@@ -7,7 +7,7 @@ init(Req, State) ->
   {ok, Resp, State}.
 
 handle(Req) ->
-  NumConnections = ets:info(streams, size),
+  NumConnections = ets:info(event_streams, size),
   cowboy_req:reply(
     200,
     #{<<"content-type">> => <<"text/plain; charset=utf-8">>},

@@ -10,17 +10,17 @@ init(Req, State) ->
 % Broadcast the passed message to all the streams
 handle(Req, BroadcastRouter) ->
 
-  % Get the message from the query string
-  #{stream_id := StreamId, msg := Msg} = cowboy_req:match_qs([stream_id, msg], Req),
+  % Get the event and data
+  #{event := Event, data := Data} = cowboy_req:match_qs([event, data], Req),
 
-  % Broadcast message to the proper connected streams
-  BroadcastRouter ! {broadcast, StreamId, Msg},
+  % Broadcast data to the proper events
+  BroadcastRouter ! {broadcast, Event, Data},
   
   % Close the HTTP connection
   cowboy_req:reply(
-    200,
+    202,
     #{<<"content-type">> => <<"text/plain; charset=utf-8">>},
-    <<"Message Sent!">>,
+    <<"">>,
     Req
   ).
 

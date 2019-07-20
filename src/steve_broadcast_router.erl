@@ -7,21 +7,21 @@ start() ->
 
 broadcast_loop() ->
   receive
-    {broadcast, StreamId, Msg} ->
-      StreamPids = ets:match_object(streams, {'_', StreamId}),
-      send_messages(StreamPids, Msg),
+    {broadcast, Event, Data} ->
+      EventStreamPids = ets:match_object(event_streams, {'_', Event}),
+      send_events(EventStreamPids, Data),
       broadcast_loop()
   end.
 
-send_messages([H|T], Msg) ->
-  {StreamPid, _} = H,
-  case is_process_alive(StreamPid) of
+send_events([H|T], Data) ->
+  {EventStreamPid, _} = H,
+  case is_process_alive(EventStreamPid) of
     true ->
-      StreamPid ! {event, ["msg: ", Msg, "\n\n"]};
+      EventStreamPid ! {event, ["data: ", Data, "\n\n"]};
     false ->
-      ets:delete(streams, StreamPid)
+      ets:delete(event_streams, EventStreamPid)
   end,
-  send_messages(T, Msg);
+  send_events(T, Data);
 
-send_messages([], _) ->
+send_events([], _) ->
   ok.
