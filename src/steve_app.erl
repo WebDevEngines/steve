@@ -5,14 +5,13 @@
 
 start(_Type, _Args) ->
   ets:new(streams, [named_table, set, public]),
-  
+
   BroadcastRouter = steve_broadcast_router:start(),
 
   Dispatch = cowboy_router:compile([
     {'_', [
-      {"/stream", steve_stream_handler, [BroadcastRouter]},
-      {"/broadcast", steve_broadcast_handler, [BroadcastRouter]},
-      {"/num_connections", steve_num_connections_handler, [BroadcastRouter]}
+      {"/streams", steve_stream_handler, [BroadcastRouter]},
+      {"/stats", steve_stats_handler, [BroadcastRouter]}
     ]}
   ]),
 
