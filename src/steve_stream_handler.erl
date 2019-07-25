@@ -20,20 +20,10 @@ handle(<<"POST">>, Req, State) ->
   {ok, Data, _} = cowboy_req:read_body(Req),
   [ChannelRouter] = State,
   ChannelRouter ! {broadcast, Channel, Event, Data},
-  cowboy_req:reply(
-    202,
-    #{<<"content-type">> => <<"text/plain; charset=utf-8">>},
-    <<"">>,
-    Req
-  );
+  cowboy_req:reply(202, #{<<"content-type">> => <<"text/plain; charset=utf-8">>}, <<"">>, Req);
 
 handle(_, Req, _) ->
-  cowboy_req:reply(
-    405,
-    #{<<"content-type">> => <<"text/plain; charset=utf-8">>},
-    <<"">>,
-    Req
-  ).
+  cowboy_req:reply(405, #{<<"content-type">> => <<"text/plain; charset=utf-8">>}, <<"">>, Req).
 
 info(eof, Req, State) ->
   {stop, Req, State};
