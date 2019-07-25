@@ -4,15 +4,13 @@
 -export([start/2, stop/1]).
 
 start(_Type, _Args) ->
-  ets:new(streams, [named_table, set, public]),
+  ok = steve_stream_db:init(),
+  ok = steve_channel_db:init(),
 
-  BroadcastRouter = steve_broadcast_router:start(),
+  ChannelRouter = steve_channel_router:start(),
 
   Dispatch = cowboy_router:compile([
-    {'_', [
-      {"/streams", steve_stream_handler, [BroadcastRouter]},
-      {"/stats", steve_stats_handler, [BroadcastRouter]}
-    ]}
+    {'_', [{"/streams", steve_stream_handler, [ChannelRouter]}]}
   ]),
 
   {ok, _} = cowboy:start_clear(
