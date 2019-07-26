@@ -10,7 +10,10 @@ start(_Type, _Args) ->
   ChannelRouter = steve_channel_router:start(),
 
   Dispatch = cowboy_router:compile([
-    {'_', [{"/streams", steve_stream_handler, [ChannelRouter]}]}
+    {'_', [
+      {"/streams", steve_stream_handler, [ChannelRouter]},
+      {"/broadcast", steve_broadcast_handler, [ChannelRouter]}
+    ]}
   ]),
 
   {ok, _} = cowboy:start_clear(

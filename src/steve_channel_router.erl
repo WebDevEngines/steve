@@ -3,7 +3,7 @@
 -export([start/0, get_payloads_after/2]).
 
 -define(HASH_ID_SALT, "steve_hash_id_salt").
--define(HASH_MIN_LENGTH, 8).
+-define(HASH_MIN_LENGTH, 16).
 -define(MAX_MESSAGES_STORED_PER_CHANNEL, 1000).
 
 start() ->
@@ -32,23 +32,38 @@ send_event([H|T], Payload) ->
 send_event([], _) ->
   ok.
 
+get_truncated_payloads(EventPayloads) ->
+  case length(EventPayloads) >= ?MAX_MESSAGES_STORED_PER_CHANNEL of
+    true -> [];
+    false -> EventPayloads
+  end.
+
 create_event_payload(HashCtx, Channel, Event, Data) ->
   EventPayloads = steve_channel_db:get_payloads(Channel),
-  HashId = hashids:encode(HashCtx, length(EventPayloads) + 1),
-  NewEventPayload = ["event: ", Event, "\n",  "id: ", HashId, "\n",  "data: ", Data, "\n\n"],
-  NewEventPayloads = EventPayloads ++ [NewEventPayload],
-  steve_channel_db:set_payloads(
-    Channel, 
-    lists:sublist(NewEventPayloads, ?MAX_MESSAGES_STORED_PER_CHANNEL)
-  ),
+  TruncatedEventPayloads = get_truncated_payloads(EventPayloads),
+  HashId = hashids:encode(HashCtx, length(TruncatedEventPayloads) + 1),
+  NewEventPayload = ["event: ", get_event(Event), "\n",  "id: ", HashId, "\n",  "data: ", Data, "\n\n"],
+  NewEventPayloads = TruncatedEventPayloads ++ [NewEventPayload],
+  steve_channel_db:set_payloads(Channel, NewEventPayloads),
   NewEventPayload.
 
 get_payloads_after(Channel, HashId) ->
   HashCtx = hashids:new([{salt, ?HASH_ID_SALT}, {min_hash_length, ?HASH_MIN_LENGTH}]),
   EventPayloads = steve_channel_db:get_payloads(Channel),
-  [LastEventPayloadIdx] = hashids:decode(HashCtx, binary_to_list(HashId)),
+  get_last_event_payloads(hashids:decode(HashCtx, binary_to_list(HashId)), EventPayloads).
+
+get_last_event_payloads([LastEventPayloadIdx], EventPayloads) ->
   lists:sublist(
     EventPayloads, 
     LastEventPayloadIdx, 
     ?MAX_MESSAGES_STORED_PER_CHANNEL
-  ).
+  );
+
+get_last_event_payloads([], _) ->
+  [].
+
+get_event(<<"">>) ->
+  <<"message">>;
+
+get_event(Event) ->
+  Event.
