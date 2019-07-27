@@ -54,7 +54,9 @@ create_payload(Channel, Event, Data) ->
   Result = get_payloads(Channel),
   {HashCtx, EventPayloads} = get_hash_ctx_and_payloads(Result),
   HashId = hashids:encode(HashCtx, length(EventPayloads) + 1),
-  NewEventPayload = ["event: ", nvl_event(Event), "\n",  "id: ", HashId, "\n",  "data: ", Data, "\n\n"],
+  NewEventPayload = ["event: ", nvl_event(Event), "\n",  
+                     "id: ", HashId, "\n",  
+                     "data: ", Data, "\n\n"],
   NewEventPayloads = EventPayloads ++ [NewEventPayload],
   set_payloads(Channel, HashCtx, NewEventPayloads),
   NewEventPayload.
@@ -65,7 +67,10 @@ get_payloads_after(Channel, EventId) ->
     undefined ->
       [];
     _ ->
-      get_last_event_payloads(hashids:decode(HashCtx, binary_to_list(EventId)), EventPayloads)
+      get_last_event_payloads(
+        hashids:decode(HashCtx, binary_to_list(EventId)),
+        EventPayloads
+      )
   end.
 
 get_last_event_payloads([LastEventPayloadIdx], EventPayloads) ->
