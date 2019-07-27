@@ -30,7 +30,7 @@ get_last_event_payloads(_, undefined) ->
   ok;
 
 get_last_event_payloads(Channel, LastEventId) ->
-  steve_broadcast:get_payloads_after(Channel, LastEventId).
+  steve_channel:get_payloads_after(Channel, LastEventId).
 
 stream_last_event_payloads(_, ok) ->
   ok;

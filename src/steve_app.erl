@@ -5,14 +5,12 @@
 
 start(_Type, _Args) ->
   ok = steve_stream:init(),
-  ok = steve_broadcast:init(),
-
-  BroadcastRouter = steve_broadcast_router:start(),
+  ok = steve_channel:init(),
 
   Dispatch = cowboy_router:compile([
     {'_', [
-      {"/streams", steve_stream_handler, [BroadcastRouter]},
-      {"/broadcast", steve_broadcast_handler, [BroadcastRouter]}
+      {"/streams", steve_stream_handler, []},
+      {"/broadcast", steve_broadcast_handler, []}
     ]}
   ]),
 

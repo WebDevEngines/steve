@@ -8,4 +8,4 @@ start_link() ->
 
 init([]) ->
   Procs = [],
-  {ok, {{one_for_one, 1, 5}, Procs}}.
+  {ok, {{one_for_one, 1, 10}, Procs}}.
