@@ -1,4 +1,4 @@
--module(steve_stream_db).
+-module(steve_stream).
 
 -export([init/0, get_pids/1, add_pid/2, remove_pid/1, num_pids/0]).
 

@@ -4,15 +4,15 @@
 -export([start/2, stop/1]).
 
 start(_Type, _Args) ->
-  ok = steve_stream_db:init(),
-  ok = steve_channel_db:init(),
+  ok = steve_stream:init(),
+  ok = steve_broadcast:init(),
 
-  ChannelRouter = steve_channel_router:start(),
+  BroadcastRouter = steve_broadcast_router:start(),
 
   Dispatch = cowboy_router:compile([
     {'_', [
-      {"/streams", steve_stream_handler, [ChannelRouter]},
-      {"/broadcast", steve_broadcast_handler, [ChannelRouter]}
+      {"/streams", steve_stream_handler, [BroadcastRouter]},
+      {"/broadcast", steve_broadcast_handler, [BroadcastRouter]}
     ]}
   ]),
 
