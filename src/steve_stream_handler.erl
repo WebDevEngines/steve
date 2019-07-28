@@ -15,11 +15,14 @@ init(Req, State) ->
   LastEventId = cowboy_req:header(<<"last-event-id">>, Req),
   LastEventPayloads = get_last_event_payloads(Channel, LastEventId),
 
+  % Prep response
+  Resp = cowboy_req:stream_reply(
+    200, #{<<"content-type">> => <<"text/event-stream">>}, Req),
+
   % Stream old payloads if necessary
-  Resp = cowboy_req:stream_reply(200, Req),
   ok = stream_last_event_payloads(Resp, LastEventPayloads),
 
-  % Keep connection open so we can send events
+  % Keep connection open so we can keep streaming
   {cowboy_loop, Resp, State}.
 
 get_last_event_payloads(_, undefined) ->

@@ -6,16 +6,15 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 init(Req, State) ->
-  #{channel := Channel,
-    event := Event,
-    data := Data} = cowboy_req:match_qs([channel, {event, [], <<"message">>}, data], Req),
+  #{channel := Channel, event := Event, data := Data} = cowboy_req:match_qs(
+    [channel, {event, [], <<"message">>}, data], Req),
 
-  % Send event to channel
+  % Send data to channel
   steve_channel:send_event(Channel, Event, Data),
 
   % Send response back to the client
-  TextPlain = #{<<"content-type">> => <<"text/plain; charset=utf-8">>},
-  Resp = cowboy_req:reply(202, TextPlain, <<"">>, Req),
+  Resp = cowboy_req:reply(
+    202, #{<<"content-type">> => <<"text/plain; charset=utf-8">>}, <<"">>, Req),
 
   {ok, Resp, State}.
 

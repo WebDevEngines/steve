@@ -1,0 +1,12 @@
+<html>
+<body>
+  <script>
+    var source = new EventSource("http://localhost:8093/stream?channel=test");
+    source.onmessage = function(event) {
+      document.getElementById("result").innerHTML += event.data + "<br>";
+    };
+  </script>
+  <div id="result">
+  </div>
+</body>
+</html>

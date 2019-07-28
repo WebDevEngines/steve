@@ -10,7 +10,8 @@ start(_Type, _Args) ->
   Dispatch = cowboy_router:compile([
     {'_', [
       {"/stream", steve_stream_handler, []},
-      {"/broadcast", steve_broadcast_handler, []}
+      {"/broadcast", steve_broadcast_handler, []},
+      {"/[...]", cowboy_static, {priv_dir, steve, "", [{mimetypes, cow_mimetypes, all}]}}
     ]}
   ]),
 
