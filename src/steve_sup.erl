@@ -1,6 +1,5 @@
 -module(steve_sup).
 -behaviour(supervisor).
-
 -export([start_link/0, init/1]).
 
 start_link() ->
@@ -8,4 +7,4 @@ start_link() ->
 
 init([]) ->
   Procs = [],
-  {ok, {{one_for_one, 1, 10}, Procs}}.
+  {ok, {{one_for_one, 1, 5}, Procs}}.

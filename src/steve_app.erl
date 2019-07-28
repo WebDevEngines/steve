@@ -1,15 +1,15 @@
 -module(steve_app).
 -behaviour(application).
-
 -export([start/2, stop/1]).
+-define(API_PORT, os:getenv("API_PORT", 8093)).
+-define(API_IDLE_TIMEOUT_MS, os:getenv("API_IDLE_TIMEOUT_MS", 600000)).
 
 start(_Type, _Args) ->
-  ok = steve_stream:init(),
   ok = steve_channel:init(),
 
   Dispatch = cowboy_router:compile([
     {'_', [
-      {"/streams", steve_stream_handler, []},
+      {"/stream", steve_stream_handler, []},
       {"/broadcast", steve_broadcast_handler, []}
     ]}
   ]),
@@ -17,10 +17,10 @@ start(_Type, _Args) ->
   {ok, _} = cowboy:start_clear(
     http,
     [
-      {port, 8093},
+      {port, ?API_PORT},
       {max_connections, infinity}
     ],
-    #{env => #{dispatch => Dispatch}, idle_timeout => 600000}
+    #{env => #{dispatch => Dispatch}, idle_timeout => ?API_IDLE_TIMEOUT_MS}
   ),
   steve_sup:start_link().
 
