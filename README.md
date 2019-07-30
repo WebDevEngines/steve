@@ -15,4 +15,5 @@ API_IDLE_TIMEOUT_MS=600000
 ## TODO
 - [ ] Cleanup document routes and get/set handlers
 - [ ] Add authorization webhook
+- [ ] Queue document update requests
 - [ ] Add client side example e.g. simple game
