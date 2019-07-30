@@ -1,5 +1,5 @@
 # Steve
-Simple in-memory real-time JSON DB over SSE
+Stream JSON document changes over SSE
 
 ## Get Started
 ```
@@ -12,3 +12,7 @@ make run
 API_PORT=8093
 API_IDLE_TIMEOUT_MS=600000
 ```
+### TODO
+- [ ] Cleanup document routes and get/set handlers
+- [ ] Add authorization webhook
+- [ ] Add client side example e.g. simple game
