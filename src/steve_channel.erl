@@ -1,17 +1,13 @@
 -module(steve_channel).
--export([init/0, add_stream/2, send_event/3,
-  get_payloads_after/2, num_streams/0]).
--define(HASH_MIN_LENGTH, os:getenv("HASH_MIN_LENGTH", 16)).
--define(MAX_PAYLOADS_STORED_PER_CHANNEL,
-  os:getenv("MAX_PAYLOADS_STORED_PER_CHANNEL", 1000)).
+-export([init/0, add_stream/2, send_event/3, num_streams/0, create_payload/1]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Initialize the channel module
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 init() ->
+  quickrand:seed(),
   ets:new(channels, [named_table, set, public]),
-  ets:new(payloads, [named_table, set, public]),
   ets:new(streams, [named_table, set, public]),
   ok.
 
@@ -22,32 +18,6 @@ init() ->
 send_event(Channel, Event, Data) ->
   ChannelPid = verify_available(Channel),
   ChannelPid ! {send_event, Channel, Event, Data}.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Retrieve channel payloads created after the passed event id
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-get_payloads_after(Channel, EventId) ->
-  {EventIdHashCtx, EventPayloads} = get_payloads(Channel),
-  case EventIdHashCtx of
-    undefined ->
-      [];
-    _ ->
-      get_last_event_payloads(
-        hashids:decode(EventIdHashCtx, binary_to_list(EventId)),
-        EventPayloads
-      )
-  end.
-
-get_last_event_payloads([LastEventPayloadIdx], EventPayloads) ->
-  lists:sublist(
-    EventPayloads,
-    LastEventPayloadIdx,
-    ?MAX_PAYLOADS_STORED_PER_CHANNEL
-  );
-
-get_last_event_payloads([], _) ->
-  [].
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Verify that the channel has a running process to accept broadcast requests
@@ -77,13 +47,13 @@ message_loop() ->
   receive
     {send_event, Channel, Event, Data} ->
       StreamPids = get_streams(Channel),
-      Payload = create_payload(Channel, Event, Data),
+      Payload = create_payload(Event, Data),
       stream_event(StreamPids, Payload)
   end,
   message_loop().
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Stream event to connected streams
+% Stream event to connected stream(s)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 stream_event([H|T], Payload) ->
@@ -103,57 +73,20 @@ stream_event([], _) ->
 % Create a new payload to stream
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-get_payloads([]) ->
-  get_payloads([{channel, {undefined, []}}]);
+create_payload(Data) ->
+  create_payload("message", Data).
 
-get_payloads([{_, {HashCtx, EventPayloads}}]) ->
-  NumEventPayloads = length(EventPayloads),
-  case (NumEventPayloads >= ?MAX_PAYLOADS_STORED_PER_CHANNEL) or
-       (NumEventPayloads =< 0) of
-    true ->
-      NewHashCtx = hashids:new([
-        {salt, integer_to_list(get_timestamp())},
-        {min_hash_length, ?HASH_MIN_LENGTH}
-      ]),
-      {NewHashCtx, []};
-    false ->
-      {HashCtx, EventPayloads}
-  end;
-
-get_payloads(Channel) ->
-  get_payloads(ets:lookup(payloads, Channel)).
+create_payload(Event, Data) ->
+  ["event: ", Event, "\n",
+   "id: ", get_id(), "\n",
+   "data: ", Data, "\n\n"].
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Create a new payload to stream
+% Get a unique id for the payload
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-create_payload(Channel, Event, Data) ->
-  {EventIdHashCtx, EventPayloads} = get_payloads(Channel),
-  EventId = hashids:encode(EventIdHashCtx, length(EventPayloads) + 1),
-  NewEventPayload = ["event: ", nvl_event(Event), "\n",
-                     "id: ", EventId, "\n",
-                     "data: ", Data, "\n\n"],
-  NewEventPayloads = EventPayloads ++ [NewEventPayload],
-  ets:insert(payloads, {Channel, {EventIdHashCtx, NewEventPayloads}}),
-  NewEventPayload.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% If an `event` is not passed then use `message`
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-nvl_event(<<"">>) ->
-  <<"message">>;
-
-nvl_event(Event) ->
-  Event.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Get the current timestamp in milliseconds
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-get_timestamp() ->
-  {Mega, Sec, Micro} = os:timestamp(),
-  (Mega * 1000000 + Sec) * 1000 + round(Micro / 1000).
+get_id() ->
+  uuid:uuid_to_string(uuid:get_v4_urandom()).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Manage stream processes by channel

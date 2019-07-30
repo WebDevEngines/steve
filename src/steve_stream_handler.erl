@@ -6,37 +6,33 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 init(Req, State) ->
-  #{channel := Channel} = cowboy_req:match_qs([channel], Req),
+  #{documentId := DocumentId} = cowboy_req:match_qs([documentId], Req),
+
+  % Check authorization status
+  %
+  %
 
   % Register this stream handler instance with the channel
-  steve_channel:add_stream(self(), Channel),
-
-  % Retrieve payloads newer that tne passed last-event-id header if passed
-  LastEventId = cowboy_req:header(<<"last-event-id">>, Req),
-  LastEventPayloads = get_last_event_payloads(Channel, LastEventId),
+  steve_channel:add_stream(self(), DocumentId),
 
   % Prep response
   Resp = cowboy_req:stream_reply(
     200, #{<<"content-type">> => <<"text/event-stream">>}, Req),
 
-  % Stream old payloads if necessary
-  ok = stream_last_event_payloads(Resp, LastEventPayloads),
+  % Retrieve the document by id
+  Document = steve_document:get_document(DocumentId),
+
+  case Document of
+    notfound ->
+      ok;
+    _ ->
+      % Stream initial document
+      Payload = steve_channel:create_payload(jsone:encode(Document)),
+      cowboy_req:stream_body(Payload, nofin, Resp)
+  end,
 
   % Keep connection open so we can keep streaming
   {cowboy_loop, Resp, State}.
-
-get_last_event_payloads(_, undefined) ->
-  [];
-
-get_last_event_payloads(Channel, LastEventId) ->
-  steve_channel:get_payloads_after(Channel, LastEventId).
-
-stream_last_event_payloads(_, []) ->
-  ok;
-
-stream_last_event_payloads(Req, [H|T]) ->
-  cowboy_req:stream_body(H, nofin, Req),
-  stream_last_event_payloads(Req, T).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % If the handler receives an unexpected EOF from the client then stop

@@ -6,12 +6,12 @@
 
 start(_Type, _Args) ->
   ok = steve_channel:init(),
+  ok = steve_document:init(),
 
   Dispatch = cowboy_router:compile([
     {'_', [
       {"/stream", steve_stream_handler, []},
-      {"/broadcast", steve_broadcast_handler, []},
-      {"/[...]", cowboy_static, {priv_dir, steve, "", [{mimetypes, cow_mimetypes, all}]}}
+      {"/document", steve_document_handler, []}
     ]}
   ]),
 
