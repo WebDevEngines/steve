@@ -1,4 +1,4 @@
--module(steve_stream_handler).
+-module(steve_document_change_handler).
 -export([init/2, info/3, terminate/3]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -6,7 +6,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 init(Req, State) ->
-  #{documentId := DocumentId} = cowboy_req:match_qs([documentId], Req),
+  DocumentId = cowboy_req:binding(documentId, Req),
 
   % Check authorization status
   %
@@ -24,6 +24,7 @@ init(Req, State) ->
 
   case Document of
     notfound ->
+      % Wait for a document with a matching documentId to be added
       ok;
     _ ->
       % Stream initial document
@@ -57,7 +58,7 @@ info(_Msg, Req, State) ->
   {ok, Req, State}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% When the handler terminated clean up
+% When the handler terminates clean up
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 terminate(_Reason, _Req, _State) ->

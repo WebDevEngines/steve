@@ -23,8 +23,6 @@ get_document(DocumentId) ->
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Set a document and stream the json-patch changes
-% TODO
-% - Serialize document updates
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 set_document(DocumentId, NewDocument) ->
@@ -65,15 +63,15 @@ create_payload([H|T], Payloads) ->
   case H of
     {add, Path, NewValue} ->
       create_payload(T, Payloads ++ [#{<<"op">> => <<"add">>,
-                                   <<"path">> => format_path(Path),
-                                   <<"value">> => NewValue}]);
+                                       <<"path">> => format_path(Path),
+                                       <<"value">> => NewValue}]);
     {remove, Path} ->
       create_payload(T, Payloads ++ [#{<<"op">> => <<"remove">>,
-                                   <<"path">> => format_path(Path)}]);
+                                       <<"path">> => format_path(Path)}]);
     {replace, Path, NewValue} ->
       create_payload(T, Payloads ++ [#{<<"op">> => <<"replace">>,
-                                   <<"path">> => format_path(Path),
-                                   <<"value">> => NewValue}]);
+                                       <<"path">> => format_path(Path),
+                                       <<"value">> => NewValue}]);
      _ ->
        create_payload(T, Payloads)
   end;

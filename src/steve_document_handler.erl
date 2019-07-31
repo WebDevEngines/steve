@@ -6,8 +6,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 init(Req, State) ->
-  #{documentId := DocumentId, documentBody := DocumentBody} =
-    cowboy_req:match_qs([documentId, documentBody], Req),
+  DocumentId = cowboy_req:binding(documentId, Req),
+  {ok, DocumentBody, _} = cowboy_req:read_body(Req),
 
   % Check authorization status
   %
@@ -27,7 +27,7 @@ init(Req, State) ->
           {ok, Resp, State};
         true ->
           steve_document:set_document(DocumentId, Document),
-          Resp = cowboy_req:reply(202, Headers, <<"">>, Req),
+          Resp = cowboy_req:reply(202, Headers, <<"Accepted">>, Req),
           {ok, Resp, State}
       end
   end.

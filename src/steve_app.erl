@@ -10,8 +10,8 @@ start(_Type, _Args) ->
 
   Dispatch = cowboy_router:compile([
     {'_', [
-      {"/stream", steve_stream_handler, []},
-      {"/document", steve_document_handler, []}
+      {"/documents/:documentId/changes", steve_document_change_handler, []},
+      {"/documents/:documentId", steve_document_handler, []}
     ]}
   ]),
 
