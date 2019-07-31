@@ -27,7 +27,7 @@ AUTHORIZATION_WEBHOOK=<your_auth_service_url>
 Create or update a JSON document by POSTing to `/documents/:documentId` with the document's JSON body as the request body. Sending invalid JSON will result in a 400 being returned.
 
 #### Listen for document changes
-Listen for creation and subsequent changes to a document by GETing `/documents/:documentId/changes`. The initial connection to this endpoint will return the full document as the first SSE and the hold the connection open for subsequent updates. If the `documentId` is not found the connection will be held open until it is created.
+Listen for creation and subsequent changes to a document by GETing `/documents/:documentId/changes`. The initial connection to this endpoint will return the full document as the first SSE and then hold the connection open for subsequent updates. If the `documentId` is not found the connection will be held open until it is created.
 
 ## Authorization Webhook
 Access to documents can be restricted by POSTing to an external authorization service with the passed `Authorization` header value and `documentId` in the request body i.e.
