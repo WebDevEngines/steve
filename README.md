@@ -7,6 +7,8 @@ http://jsonpatch.com/
 ##### SSE
 https://www.w3.org/TR/eventsource/
 
+Note: This is a work in progress. Use in production at your own risk.
+
 ## Get Started
 ```
 make run
