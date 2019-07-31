@@ -37,7 +37,9 @@ Access to documents can be restricted by POSTing to an external authorization se
   "documentId": "the document id"
 }
 ```
- If a `200` is returned from the external service then the request will be allowed otherwise a `401` will be returned. The header is expected to be in the format `Authorization: Bearer <token>`.
+If a `200` is returned from the external service then the request will be allowed otherwise a `401` will be returned. The header is expected to be in the format `Authorization: Bearer <token>`.
+
+If the `AUTHORIZATION_WEBHOOK` variable is not set all requests are treated as authorized.
 
 ## Erlang API
 
