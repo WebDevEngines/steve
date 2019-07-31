@@ -6,13 +6,13 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 init(Req, State) ->
-  Headers = #{<<"content-type">> => <<"text/plain; charset=utf-8">>},
-
+  AuthToken = cowboy_req:parse_header(<<"authorization">>, Req),
   DocumentId = cowboy_req:binding(documentId, Req),
   {ok, DocumentBody, _} = cowboy_req:read_body(Req),
+  Headers = #{<<"content-type">> => <<"text/plain; charset=utf-8">>},
 
   % Check authorization status
-  case steve_auth:is_authorized("", DocumentId) of
+  case steve_auth:is_authorized(AuthToken, DocumentId) of
     false ->
       Resp = cowboy_req:reply(401, Headers, <<"Unauthorized">>, Req),
       {ok, Resp, State};

@@ -6,10 +6,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 init(Req, State) ->
+  AuthToken = cowboy_req:parse_header(<<"authorization">>, Req),
   DocumentId = cowboy_req:binding(documentId, Req),
 
   % Check authorization status
-  case steve_auth:is_authorized("", DocumentId) of
+  case steve_auth:is_authorized(AuthToken, DocumentId) of
     false ->
       Resp = cowboy_req:reply(401,
         #{<<"content-type">> => <<"text/event-stream">>},

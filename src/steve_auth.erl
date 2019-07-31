@@ -11,6 +11,9 @@ init() ->
   application:ensure_all_started(gun),
   ok.
 
+is_authorized(undefined, _DocumentId) ->
+  true;
+
 is_authorized(AuthToken, DocumentId) ->
   case ?AUTHORIZATION_WEBHOOK of
     undefined ->
