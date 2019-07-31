@@ -7,6 +7,7 @@
 start(_Type, _Args) ->
   ok = steve_channel:init(),
   ok = steve_document:init(),
+  ok = steve_auth:init(),
 
   Dispatch = cowboy_router:compile([
     {'_', [

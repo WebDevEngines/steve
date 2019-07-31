@@ -18,7 +18,7 @@ ERLANG_MK_FILENAME := $(realpath $(lastword $(MAKEFILE_LIST)))
 export ERLANG_MK_FILENAME
 
 ERLANG_MK_VERSION = 2019.07.01
-ERLANG_MK_WITHOUT = 
+ERLANG_MK_WITHOUT =
 
 # Make 3.81 and 3.82 are deprecated.
 
@@ -2304,6 +2304,14 @@ pkg_jsone_homepage = https://github.com/sile/jsone.git
 pkg_jsone_fetch = git
 pkg_jsone_repo = https://github.com/sile/jsone.git
 pkg_jsone_commit = master
+
+PACKAGES += uri
+pkg_uri_name = uri
+pkg_uri_description = uri parsing module for Erlang
+pkg_uri_homepage = https://github.com/erlware/uri.git
+pkg_uri_fetch = git
+pkg_uri_repo = https://github.com/erlware/uri.git
+pkg_uri_commit = master
 
 PACKAGES += jsonerl
 pkg_jsonerl_name = jsonerl

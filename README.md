@@ -30,7 +30,7 @@ Access to documents can be restricted by POSTing to an external authorization se
   "documentId": "the document id"
 }
 ```
- If a `200` is returned from the external service then the request will be allowed otherwise the response code and request body will be returned in the response.
+ If a `200` is returned from the external service then the request will be allowed otherwise a `401` will be returned.
 
 ## Erlang API
 
@@ -39,7 +39,6 @@ To list the number of open streaming connections connect to the beam process and
 
 ## TODO
 - [X] Cleanup document routes and get/set handlers
-- [ ] Add authorization webhook
-- [ ] Add authorization service caching
+- [X] Add authorization webhook
 - [ ] Improved list diffing
 - [ ] Add client side example e.g. simple game

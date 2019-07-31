@@ -9,31 +9,36 @@ init(Req, State) ->
   DocumentId = cowboy_req:binding(documentId, Req),
 
   % Check authorization status
-  %
-  %
+  case steve_auth:is_authorized("", DocumentId) of
+    false ->
+      Resp = cowboy_req:reply(401,
+        #{<<"content-type">> => <<"text/event-stream">>},
+        <<"Unauthorized">>, Req),
+      {ok, Resp, State};
+    true ->
+      % Register this stream handler instance with the channel
+      steve_channel:add_stream(self(), DocumentId),
 
-  % Register this stream handler instance with the channel
-  steve_channel:add_stream(self(), DocumentId),
+      % Prep response
+      Resp = cowboy_req:stream_reply(
+        200, #{<<"content-type">> => <<"text/event-stream">>}, Req),
 
-  % Prep response
-  Resp = cowboy_req:stream_reply(
-    200, #{<<"content-type">> => <<"text/event-stream">>}, Req),
+      % Retrieve the document by id
+      Document = steve_document:get_document(DocumentId),
 
-  % Retrieve the document by id
-  Document = steve_document:get_document(DocumentId),
+      case Document of
+        notfound ->
+          % Wait for a document with a matching documentId to be added
+          ok;
+        _ ->
+          % Stream initial document
+          Payload = steve_channel:create_payload(jsone:encode(Document)),
+          cowboy_req:stream_body(Payload, nofin, Resp)
+      end,
 
-  case Document of
-    notfound ->
-      % Wait for a document with a matching documentId to be added
-      ok;
-    _ ->
-      % Stream initial document
-      Payload = steve_channel:create_payload(jsone:encode(Document)),
-      cowboy_req:stream_body(Payload, nofin, Resp)
-  end,
-
-  % Keep connection open so we can keep streaming
-  {cowboy_loop, Resp, State}.
+      % Keep connection open so we can keep streaming
+      {cowboy_loop, Resp, State}
+  end.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % If the handler receives an unexpected EOF from the client then stop
