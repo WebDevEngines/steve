@@ -12,6 +12,7 @@ Override the port you want the server to listen on and the timeout for SSE conne
 ```
 API_PORT=8093
 API_IDLE_TIMEOUT_MS=600000
+API_NUM_PROCS=5
 AUTHORIZATION_WEBHOOK=<your_auth_service_url>
 ```
 ## HTTP(S) API
@@ -30,7 +31,7 @@ Access to documents can be restricted by POSTing to an external authorization se
   "documentId": "the document id"
 }
 ```
- If a `200` is returned from the external service then the request will be allowed otherwise a `401` will be returned.
+ If a `200` is returned from the external service then the request will be allowed otherwise a `401` will be returned. The header is expected to be in the format `Authorization: Bearer <token>`.
 
 ## Erlang API
 

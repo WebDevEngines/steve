@@ -5,7 +5,7 @@
 % Diff passed maps
 %
 % TODO
-% - Handle list changes more effectively i.e. partial update instead of swap
+% - Handle list changes properly i.e. partial update instead of swap
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 map_diff(OldMap, NewMap) ->

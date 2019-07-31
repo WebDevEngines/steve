@@ -14,14 +14,14 @@ init() ->
 is_authorized(undefined, _DocumentId) ->
   true;
 
-is_authorized(AuthToken, DocumentId) ->
+is_authorized({bearer, AuthToken}, DocumentId) ->
   case ?AUTHORIZATION_WEBHOOK of
     undefined ->
       true;
     _ ->
-      {uri, _, _, Host, Port, Path, _, _, _} = uri:from_string(?AUTHORIZATION_WEBHOOK),
+      {uri, _, _, Host,
+       Port, Path, _, _, _} = uri:from_string(?AUTHORIZATION_WEBHOOK),
       {ok, ConnPid} = gun:open(binary_to_list(Host), Port),
-      {ok, _} = gun:await_up(ConnPid),
       Payload = jsone:encode(#{<<"authorization">> => AuthToken,
                                <<"documentId">> => DocumentId}),
       StreamRef = gun:post(ConnPid, Path, [], Payload),
@@ -38,4 +38,7 @@ is_authorized(AuthToken, DocumentId) ->
       after ?AUTHORIZATION_WEBHOOK_TIMEOUT ->
           false
       end
-    end.
+    end;
+
+  is_authorized(_AuthToken, _DocumentId) ->
+    false.
