@@ -1,6 +1,8 @@
 FROM erlang:alpine
 
 RUN apk add --no-cache make
+RUN apk add --no-cache git
+RUN apk add --no-cache curl
 
 RUN mkdir -p /code/
 COPY . /code/
