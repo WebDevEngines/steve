@@ -5,6 +5,12 @@ Simple and scalable (YMMV) server to stream JSON document changes over SSE.
 ```
 make run
 ```
+or
+```
+docker build . -t steve
+docker run -p 0.0.0.0:8093:8093 -it steve
+```
+
 ## Server Configuration
 
 ### Environment Variables
