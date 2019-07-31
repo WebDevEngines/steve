@@ -48,4 +48,3 @@ To list the number of open streaming connections connect to the beam process and
 - [X] Cleanup document routes and get/set handlers
 - [X] Add authorization webhook
 - [ ] Improved list diffing
-- [ ] Add client side example e.g. simple game
