@@ -1,5 +1,11 @@
 # Steve
-Simple and scalable (YMMV) server to stream JSON document changes over SSE.
+Simple and scalable (YMMV) server to stream JSON document changes (via JSON Patch) over SSE.
+
+##### JSON Patch
+http://jsonpatch.com/
+
+##### SSE
+https://www.w3.org/TR/eventsource/
 
 ## Get Started
 ```
