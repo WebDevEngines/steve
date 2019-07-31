@@ -7,8 +7,6 @@ http://jsonpatch.com/
 ##### SSE
 https://www.w3.org/TR/eventsource/
 
-Note: This is a work in progress. Use in production at your own risk.
-
 ## Get Started
 ```
 make run
@@ -58,3 +56,6 @@ To list the number of open streaming connections connect to the beam process and
 - [X] Cleanup document routes and get/set handlers
 - [X] Add authorization webhook
 - [ ] Improved list diffing
+
+## Warning
+This is a work in progress. Use at your own risk.
